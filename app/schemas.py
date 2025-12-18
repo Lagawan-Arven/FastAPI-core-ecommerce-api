@@ -1,53 +1,105 @@
 from pydantic import BaseModel
+from typing import Optional
 
-class Customer_Personal_Info(BaseModel):
+#===================================
+                #USERS
+#===================================
+class User_Personal_Info(BaseModel):
     age: int
-    firstname: str
-    lastname: str
-    sex: str
+    gender: str
     occupation: str
 
-class Customer_Create(Customer_Personal_Info):
+class User_Login_Credential(BaseModel):
     username: str
+    email: str
+
+class Base_User(User_Personal_Info,User_Login_Credential):
+    pass
+
+class User_Create(Base_User):
+    firstname: str
+    lastname: str
     password: str
 
-class Customer_Out(BaseModel):
-    id: int
-    username: str
-    
+class User_Update(User_Personal_Info):
+    firstname: str
+    lastname: str
+
+class User_Credential_Update(User_Login_Credential):
+    password: str
+
+class Base_User_Out(Base_User):
+    id: str
+    fullname: str
+
     class Config:
         from_attributes = True
 
-class Product_ID_List(BaseModel):
-    ids: list[int]
+class User_Out(BaseModel):
+    id: str
+    username: str
+    cart: Cart_Out
 
-class Order_Create(BaseModel):
-    items: list[Item] = []
-    status: str = "pending"
-
-class Order_Out(Order_Create):
-    id: int
+#===================================
+                #CARTS
+#===================================
+class Cart_Out(BaseModel):
+    orders: list[str] = []
 
     class Config:
-        from_attributes = True  
+        from_attributes = True
 
-class Item(BaseModel):
-    quantity: int
-    order_id: int
-    product_id: int
+#===================================
+                #ORDERS
+#===================================
+class Base_Order(BaseModel):
+    id: str
+    cart_id: str
+    status: str
+    payment_method: str
+    payment_status: str
+
+class Order_Create():
+    pass
     
+class Base_Order_Out(Base_Order):
+    products: list[str] = []
 
-class Product_Create(BaseModel):
+    class Config:
+        from_attributes = True
+
+#===================================
+        #ODER-PRODUCT LINK
+#===================================
+
+#===================================
+                #PRODUCTS
+#===================================
+class Base_Product(BaseModel):
     name: str
-    details: str
+    details: Optional[object] = None
+    price: float
     stock: int
+
+class Product_Create(Base_Product):
+    pass
+
+class Product_Update(Base_Product):
+    pass
+
+class Base_Product_Out(Base_Product):
+    id: str
+    orders: list[str] = []
+
+    class Config:
+        from_attributes = True
+
+class Product_Out(BaseModel):
+    id: str
+    name: str
+    details: Optional[object] = None
     price: float
 
-class Product_Out(Product_Create):
-    id: int
-
     class Config:
         from_attributes = True
-
-    
 

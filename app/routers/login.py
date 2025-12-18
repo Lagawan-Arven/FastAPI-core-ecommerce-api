@@ -1,38 +1,42 @@
 from fastapi import FastAPI,HTTPException,Depends,APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from ..database_model import CUSTOMER
-from ..dependecies import get_session
-from ..schemas import Customer_Create
-from ..auth import hash_password,verify_password,create_access_token
+
+from app.database import models
+from app.dependecies import get_session
+from app import schemas 
+from app.auth import hash_password,verify_password,create_access_token
 
 router = APIRouter()
 
 #===============================
         #REGISTER A USER
 #===============================
-@router.post("/register")
-def register_user(customer: Customer_Create,
+@router.post("/register",response_model=schemas.Base_User_Out)
+def register_user(user_data: schemas.User_Create,
                   session: Session = Depends(get_session)):
     
     #Checks if the customer's account already existed
-    db_customer = session.query(CUSTOMER).filter(CUSTOMER.username==customer.username).first()
-    if db_customer:
-        raise HTTPException(status_code=400,detail="Account already existed!")
+    db_user = session.query(models.User).filter(models.User.username==user_data.username).first()
+    if db_user:
+        raise HTTPException(status_code=400,detail="Account already exist!")
     
-    hashed_password = hash_password(customer.password)
-    new_customer = CUSTOMER(
-        name = customer.firstname.capitalize() +" "+ customer.lastname.capitalize(),
-        age = customer.age,
-        sex = customer.sex.capitalize(),
-        occupation = customer.occupation.capitalize(),
-        username = customer.username,
+    hashed_password = hash_password(user_data.password)
+    new_user = models.User(
+        fullname = user_data.firstname.capitalize() +" "+ user_data.lastname.capitalize(),
+        age = user_data.age,
+        gender = user_data.sex.capitalize(),
+        occupation = user_data.occupation.capitalize(),
+        username = user_data.username,
+        email = user_data.email,
         password = hashed_password
     )
-    session.add(new_customer)
+    new_user.cart = models.Cart(user=new_user)
+
+    session.add(new_user)
     session.commit()
-    session.refresh(new_customer)
-    return {"message":"Account successfully registered"}
+    session.refresh(new_user)
+    return new_user
 
 #===============================
         #LOGI IN USER
@@ -42,13 +46,14 @@ def login_user(username:str,
                password: str,
                session: Session = Depends(get_session)):
     
-    db_customer = session.query(CUSTOMER).filter(CUSTOMER.username==username).first()
-    if not db_customer:
-        raise HTTPException(status_code=404,detail="Account did not exist!")
-    if not verify_password(password,db_customer.password):
-        raise HTTPException(status_code=404,detail="Incorrect password!")
+    db_user = session.query(models.User).filter(models.User.username==username).first()
+    if not db_user:
+        raise HTTPException(status_code=404,detail="Account not found!")
     
-    token = create_access_token({"id":db_customer.id})
+    if not verify_password(password,db_user.password):
+        raise HTTPException(status_code=400,detail="Incorrect password!")
+    
+    token = create_access_token({"id":db_user.id,"role":username})
 
     return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}
 
@@ -56,13 +61,13 @@ def login_user(username:str,
 def login_user(data_form: OAuth2PasswordRequestForm = Depends(),
                session: Session = Depends(get_session)):
     
-    db_customer = session.query(CUSTOMER).filter(CUSTOMER.username==data_form.username).first()
-    if not db_customer:
-        raise HTTPException(status_code=404,detail="Account did not exist!")
+    db_user = session.query(models.User).filter(models.User.username==data_form.username).first()
+    if not db_user:
+        raise HTTPException(status_code=404,detail="Account not found!")
     
-    if not verify_password(data_form.password,db_customer.password):
+    if not verify_password(data_form.password,db_user.password):
         raise HTTPException(status_code=400,detail="Incorrect password!")
     
-    token = create_access_token({"id":db_customer.id})
+    token = create_access_token({"id":db_user.id,"role":data_form.username})
 
     return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}

@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
 python-jose
+python-dotenv
 sqlalchemy
 alembic
 passlib
