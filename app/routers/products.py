@@ -22,8 +22,9 @@ def get_all_products(current_user = Depends(get_current_user),
     return db_products
 
 @router.get("/products/{product_id}",response_model=schemas.Base_Product_Out)
-def get_product_by_id(product_id: str, current_user = Depends(get_current_user),
+def get_product_by_id(product_id: int, current_user = Depends(get_current_user),
                       session: Session = Depends(get_session)):
+    
     db_user = session.get(models.User,current_user.id)
     if not db_user:
         raise HTTPException(status_code=404,detail="User not logged in!")
@@ -34,7 +35,7 @@ def get_product_by_id(product_id: str, current_user = Depends(get_current_user),
     
     return db_product
 
-@router.post("/products")
+@router.post("/products",response_model=schemas.Base_Product_Out)
 def add_prodcuct(product_input: schemas.Product_Create,
                  current_user = Depends(admin_access),
                  session: Session = Depends(get_session)):
@@ -45,17 +46,16 @@ def add_prodcuct(product_input: schemas.Product_Create,
     
     new_product = models.Product(
         name = product_input.name,
-        details = product_input.details,
         stock = product_input.stock,
         price = product_input.price,
     )
     session.add(new_product)
     session.commit()
     session.refresh(new_product)
-    return {"message":"Product added successfully!"}
+    return new_product
 
-@router.put("/products/{product_id}")
-def update_product(product_id: str, product_updates: schemas.Product_Update,
+@router.put("/products/{product_id}",response_model=schemas.Base_Product_Out)
+def update_product(product_id: int, product_updates: schemas.Product_Update,
                     current_user = Depends(admin_access),
                     session: Session = Depends(get_session)):
     
@@ -68,16 +68,15 @@ def update_product(product_id: str, product_updates: schemas.Product_Update,
         raise HTTPException(status_code=404,detail="Product not found!")
     
     db_product.name = product_updates.name
-    db_product.details = product_updates.details
     db_product.price = product_updates.price
     db_product.stock = product_updates.stock
 
     session.commit()
     session.refresh(db_product)
-    return{"message":"Product updated successfully!"}
+    return db_product
 
 @router.delete("/products/{product_id}")
-def delete_product(product_id: str,
+def delete_product(product_id: int,
                     current_user = Depends(admin_access),
                     session: Session = Depends(get_session)):
     

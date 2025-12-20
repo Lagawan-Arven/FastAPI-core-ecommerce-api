@@ -10,6 +10,34 @@ from app.auth import hash_password,verify_password,create_access_token
 router = APIRouter()
 
 #===============================
+        #REGISTER AN ADMIN
+#===============================
+@router.post("/register/admin")
+def register_admin(session: Session = Depends(get_session)):
+    
+    #Checks if the customer's account already existed
+    db_user = session.query(models.User).filter(models.User.username=="admin").first()
+    if db_user:
+        raise HTTPException(status_code=400,detail="Account already exist!")
+    
+    hashed_password = hash_password("1234")
+    new_user = models.User(
+        fullname = "admin",
+        age = 0,
+        gender = "admin",
+        occupation = "admin",
+        username = "admin",
+        email = "admin",
+        password = hashed_password,
+        role = "admin"
+    )
+
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+    return new_user
+
+#===============================
         #REGISTER A USER
 #===============================
 @router.post("/register",response_model=schemas.Base_User_Out)
@@ -25,13 +53,13 @@ def register_user(user_data: schemas.User_Create,
     new_user = models.User(
         fullname = user_data.firstname.capitalize() +" "+ user_data.lastname.capitalize(),
         age = user_data.age,
-        gender = user_data.sex.capitalize(),
+        gender = user_data.gender.capitalize(),
         occupation = user_data.occupation.capitalize(),
         username = user_data.username,
         email = user_data.email,
         password = hashed_password
     )
-    new_user.cart = models.Cart(user=new_user)
+    new_user.cart = models.Cart(user = new_user)
 
     session.add(new_user)
     session.commit()
@@ -39,7 +67,7 @@ def register_user(user_data: schemas.User_Create,
     return new_user
 
 #===============================
-        #LOGI IN USER
+        #LOG IN USER
 #===============================
 @router.post("/login")
 def login_user(username:str,
@@ -53,7 +81,7 @@ def login_user(username:str,
     if not verify_password(password,db_user.password):
         raise HTTPException(status_code=400,detail="Incorrect password!")
     
-    token = create_access_token({"id":db_user.id,"role":username})
+    token = create_access_token({"id":db_user.id,"role":db_user.role})
 
     return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}
 
@@ -68,6 +96,6 @@ def login_user(data_form: OAuth2PasswordRequestForm = Depends(),
     if not verify_password(data_form.password,db_user.password):
         raise HTTPException(status_code=400,detail="Incorrect password!")
     
-    token = create_access_token({"id":db_user.id,"role":data_form.username})
+    token = create_access_token({"id":db_user.id,"role":db_user.role})
 
     return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}
