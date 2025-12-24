@@ -7,6 +7,9 @@ from app.dependecies import get_session
 from app import schemas 
 from app.auth import hash_password,verify_password,create_access_token
 
+import logging
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 #===============================
@@ -36,6 +39,9 @@ def register_user(user_data: schemas.User_Create,
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
+
+    logger.info("User account created successfully | user_id: %s | username: %s",new_user.id,new_user.username)
+    
     return new_user
 
 #===============================
@@ -55,6 +61,8 @@ def login_user(username:str,
     
     token = create_access_token({"id":db_user.id,"role":db_user.role})
 
+    logger.info("User logged in successfully | user_id: %s | username: %s",db_user.id,db_user.username)
+
     return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}
 
 @router.post("/login_test")
@@ -69,5 +77,7 @@ def login_user(data_form: OAuth2PasswordRequestForm = Depends(),
         raise HTTPException(status_code=406,detail="Incorrect password!")
     
     token = create_access_token({"id":db_user.id,"role":db_user.role})
+
+    logger.info("User logged in successfully | user_id: %s | username: %s",db_user.id,db_user.username)
 
     return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}

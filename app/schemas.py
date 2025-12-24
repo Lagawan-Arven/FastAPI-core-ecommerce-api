@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,Generic,TypeVar
 
 #===================================
                 #USERS
@@ -29,7 +29,7 @@ class User_Update(User_Personal_Info):
 class Base_User_Out(Base_User):
     id: int
     fullname: str
-    cart: Cart_Out
+    cart: Optional[Cart_Out]
     orders: list[Order_Out] = []
 
     class Config:
@@ -38,7 +38,7 @@ class Base_User_Out(Base_User):
 class User_Out(BaseModel):
     id: int
     username: str
-    cart: Cart_Out
+    cart: Optional[Cart_Out]
     orders: list[Order_Out] = []
 
 #===================================
@@ -160,3 +160,9 @@ class Product_Out(BaseModel):
     class Config:
         from_attributes = True
 
+T = TypeVar("T")
+class Paginated_Response(BaseModel, Generic[T]):
+    total: int
+    page: int
+    limit: int
+    items: list[T]

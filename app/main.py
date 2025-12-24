@@ -2,11 +2,15 @@ from fastapi import FastAPI
 from app.lifespan import lifespan
 
 from app.routers.login import router as login_router
-from app.routers.products import router as products_router
-from app.routers.orders import router as orders_router
-from app.routers.cart import router as cart_router
-from app.routers.users import router as users_router
-from app.routers.admin import router as admin_router
+from app.routers.user.products import router as products_router
+from app.routers.user.orders import router as orders_router
+from app.routers.user.cart import router as cart_router
+from app.routers.user.users import router as users_router
+from app.routers.admin.admin import router as admin_router
+
+from app.logging import setup_logging
+
+setup_logging()
 
 app = FastAPI(lifespan=lifespan)
 

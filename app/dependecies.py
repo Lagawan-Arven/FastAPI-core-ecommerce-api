@@ -1,5 +1,5 @@
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends,HTTPException
+from fastapi import Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from jose import jwt
 
@@ -26,13 +26,18 @@ def get_current_user(token: str =  Depends(oauth2_scheme),
     
     db_user = session.get(models.User,user_id)
     if not db_user:
-        raise HTTPException(status_code=404,detail="User not found!")
+        raise HTTPException(status_code=404,detail="User not logged in!")
     
     return db_user
 
-def admin_access(current_user = Depends(get_current_user)):
+def get_admin_access(current_user = Depends(get_current_user)):
 
     if current_user.role != "admin":
         raise HTTPException(status_code=403,detail="Access denied")
     
     return current_user
+
+def pagination_params(page: int = Query(1,ge=1),limit: int = Query(10,ge=1,le=100)):
+
+    offset = (page - 1)*limit
+    return {"page":page,"limit":limit,"offset":offset}
