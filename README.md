@@ -76,8 +76,8 @@ Create a `.env` file at the project root:
 - ALGORITHM=HS256
 
 - POSTGRES_USER =postgres
-- POSTGRES_PASSWORD =Charren30!
-- POSTGRES_DB =mini_ecommerce_db
+- POSTGRES_PASSWORD =postgres
+- POSTGRES_DB =ecommerce_db
 
 > ⚠️ **Do not commit `.env` files to GitHub**
 
