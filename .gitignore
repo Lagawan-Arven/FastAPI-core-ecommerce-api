@@ -1,6 +1,8 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
 # Environment
 .env
@@ -11,3 +13,5 @@ __pycache__/
 
 # OS
 .DS_Store
+
+.git
