@@ -4,14 +4,14 @@ from sqlalchemy.orm import sessionmaker,Session
 import pytest
 import os 
 
-from app.database.database import DB_USER,DB_PASSWORD,DB_HOST,DB_PORT
+from app.core.config import ENV
 from app.database.models import Base
 from app.core.dependecies import get_session
 from app.main import app
 
 os.environ["TESTING"] = "1"
 
-TEST_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/tests_db"
+TEST_DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/tests_db"
 test_engine = create_engine(TEST_DATABASE_URL)
 test_session = sessionmaker(autoflush=False,bind=test_engine)
 
