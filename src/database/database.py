@@ -1,8 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from app.database.models import Base
-from app.core.config import ENV
+from src.database.models import Base
+from src.core.config import ENV
 
 import os
 

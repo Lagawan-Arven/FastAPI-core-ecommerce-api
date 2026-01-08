@@ -3,10 +3,10 @@ from fastapi import APIRouter,Depends,HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from app.core.dependecies import get_session,pagination_params,get_current_user
-from app.database import models
-from app.core import schemas
-from app.operations import operations
+from src.core.dependecies import get_session,pagination_params,get_current_user
+from src.database import models
+from src.core import schemas
+from src.operations import operations
 
 import logging
 logger = logging.getLogger(__name__)

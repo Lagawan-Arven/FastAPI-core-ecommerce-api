@@ -3,9 +3,9 @@ from fastapi import Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from jose import jwt
 
-from app.database.database import local_session
-from app.database import models
-from app.core.auth import SECRET_KEY,ALGORITHM
+from src.database.database import local_session
+from src.database import models
+from src.core.auth import SECRET_KEY,ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login_test")
 

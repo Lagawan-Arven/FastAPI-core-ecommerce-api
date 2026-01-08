@@ -1,17 +1,23 @@
+from fastapi import FastAPI,Request
+from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from redis import Redis
 from contextlib import asynccontextmanager
-import os
-import logging
+import os,logging
 
-from app.database import models
-from app.database.database import engine,local_session
-from app.core.auth import hash_password
-from app.database.database import init_db
-from app. database.wait_for_db import wait_for_db
+from src.database import models
+from src.database.database import engine,local_session
+from src.core.auth import hash_password
+from src.database.database import init_db
+from src. database.wait_for_db import wait_for_db
+from src.core.limiter import limiter
 
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
-async def lifespan(app):
+async def lifespan(app: FastAPI):
 
     #===============================
         #VALIDATE ENVIRONMENT
@@ -57,10 +63,24 @@ async def lifespan(app):
     finally:
         session.close()
 
+    #===============================
+        #CONFIGURE REDIS
+    #===============================
+    redis = Redis(host="localhost",port=6379,decode_responses=True)
+
+    #===============================
+        #CONFIGURE RATE LIMITER
+    #===============================
+    app.state.limiter = limiter
+
+    @app.exception_handler(RateLimitExceeded)
+    def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+        return JSONResponse(status_code=429,content={"message":"Too many requests"})
+
     logger.info("Application startup complete")
 
     yield
     
     logger.info("Application shutdown")
-
+    redis.close()
     engine.dispose()

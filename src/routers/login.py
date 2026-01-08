@@ -1,11 +1,11 @@
-from fastapi import FastAPI,HTTPException,Depends,APIRouter
+from fastapi import HTTPException,Depends,APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.database import models
-from app.core.dependecies import get_session
-from app.core import schemas 
-from app.core.auth import hash_password,verify_password,create_access_token
+from src.database import models
+from src.core.dependecies import get_session
+from src.core import schemas 
+from src.core.auth import hash_password,verify_password,create_access_token
 
 import logging
 logger = logging.getLogger(__name__)

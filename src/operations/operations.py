@@ -1,9 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.dependecies import get_session
-from app.database import models
-from app.core import schemas
+from src.core.dependecies import get_session
+from src.database import models
+from src.core import schemas
 
 #===============================
     #GET PRODUCT BY ID

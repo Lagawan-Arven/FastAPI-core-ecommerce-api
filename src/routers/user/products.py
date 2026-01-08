@@ -1,16 +1,16 @@
 from fastapi import HTTPException,Depends,APIRouter
 from sqlalchemy.orm import Session
 
-from app.database import models
-from app.core.dependecies import get_session,pagination_params,get_current_user
-from app.core import schemas
+from src.database import models
+from src.core.dependecies import get_session,pagination_params,get_current_user
+from src.core import schemas
 
 router = APIRouter()
 
 #===============================
         #GET ALL PRODUCTS
 #===============================
-@router.get("/products",response_model= schemas.Paginated_Response[schemas.User_Product_Out])
+@router.get("/shop/products",response_model= schemas.Paginated_Response[schemas.User_Product_Out])
 def get_all_products(pagination = Depends(pagination_params),
                     current_user = Depends(get_current_user),
                     session: Session = Depends(get_session)):

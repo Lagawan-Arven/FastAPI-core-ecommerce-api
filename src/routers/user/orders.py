@@ -2,10 +2,10 @@ import logging
 from fastapi import HTTPException,APIRouter,Depends
 from sqlalchemy.orm import Session
 
-from app.core import schemas
-from app.core.dependecies import pagination_params,get_session,get_current_user
-from app.database import models
-from app.operations import operations
+from src.core import schemas
+from src.core.dependecies import pagination_params,get_session,get_current_user
+from src.database import models
+from src.operations import operations
 
 import logging
 logger = logging.getLogger(__name__)

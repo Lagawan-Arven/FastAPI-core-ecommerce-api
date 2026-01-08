@@ -4,10 +4,10 @@ from sqlalchemy.orm import sessionmaker,Session
 import pytest
 import os 
 
-from app.core.config import ENV
-from app.database.models import Base
-from app.core.dependecies import get_session
-from app.main import app
+from src.core.config import ENV
+from src.database.models import Base
+from src.core.dependecies import get_session
+from src.main import app
 
 os.environ["TESTING"] = "1"
 
