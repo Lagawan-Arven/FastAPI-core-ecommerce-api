@@ -2,11 +2,8 @@ from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime,timedelta,timezone
 
-from src.core.config import ENV
-import os 
+from src.configurations.initialize_env import SECRET_KEY,ALGORITHM
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes="bcrypt")

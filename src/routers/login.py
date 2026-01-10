@@ -1,11 +1,11 @@
 from fastapi import HTTPException,Depends,APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from redis.asyncio import Redis
 
-from src.database import models
-from src.core.dependecies import get_session
-from src.core import schemas 
-from src.core.auth import hash_password,verify_password,create_access_token
+from src.utilities import models,schemas
+from src.utilities.dependecies import get_session,get_redis
+from src.utilities.auth import hash_password,verify_password,create_access_token
 
 import logging
 logger = logging.getLogger(__name__)
@@ -78,16 +78,26 @@ def login_user(username:str,
 @router.post("/login_test")
 def login_user(data_form: OAuth2PasswordRequestForm = Depends(),
                session: Session = Depends(get_session)):
-    
-    db_user = session.query(models.User).filter(models.User.username==data_form.username).first()
-    if not db_user:
-        raise HTTPException(status_code=404,detail="Account not found!")
-    
-    if not verify_password(data_form.password,db_user.password):
-        raise HTTPException(status_code=406,detail="Incorrect password!")
-    
-    token = create_access_token({"id":db_user.id,"role":db_user.role})
+    try:
+        db_user = session.query(models.User).filter(models.User.username==data_form.username).first()
+        if not db_user:
+            logger.info("Account not found | Login failed")
+            raise HTTPException(status_code=404,detail="Account not found!")
+        
+        if not verify_password(data_form.password,db_user.password):
+            logger.info("Incorrect password | Login failed")
+            raise HTTPException(status_code=406,detail="Incorrect password!")
+        
+        token = create_access_token({"id":db_user.id,"role":db_user.role})
 
-    logger.info("User logged in successfully | user_id: %s | username: %s",db_user.id,db_user.username)
+        logger.info("User logged in successfully | user_id: %s | username: %s",db_user.id,db_user.username)
 
-    return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}
+        return {"message":"Log in successful!","access_token":token,"token_type":"bearer"}
+    
+    except HTTPException:
+        session.rollback()
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.info("Internal Server Error | Login failed")
+        raise HTTPException(status_code=500,detail="Internal Server Error | Login failed") from e

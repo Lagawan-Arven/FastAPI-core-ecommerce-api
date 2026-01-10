@@ -4,9 +4,9 @@ from sqlalchemy.orm import sessionmaker,Session
 import pytest
 import os 
 
-from src.core.config import ENV
-from src.database.models import Base
-from src.core.dependecies import get_session
+from src.configurations.env_config import ENV
+from src.utilities.models import Base
+from src.utilities.dependecies import get_session
 from src.main import app
 
 os.environ["TESTING"] = "1"

@@ -1,14 +1,8 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from src.database.models import Base
-from src.core.config import ENV
-
-import os
-
-DB_URL = os.getenv('DB_URL')
-if not DB_URL:
-    raise RuntimeError("DB_URL is not set")
+from src.utilities.models import Base
+from src.configurations.initialize_env import DB_URL
 
 engine = create_engine(DB_URL)
 

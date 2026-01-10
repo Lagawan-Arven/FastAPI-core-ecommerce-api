@@ -1,13 +1,14 @@
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends,HTTPException,Query
+from fastapi import Depends,HTTPException,Query,Request
+from redis.asyncio import Redis
 from sqlalchemy.orm import Session
 from jose import jwt
 
-from src.database.database import local_session
-from src.database import models
-from src.core.auth import SECRET_KEY,ALGORITHM
+from src.configurations.database import local_session
+from src.utilities import models
+from src.utilities.auth import SECRET_KEY,ALGORITHM
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login_test")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login_test")
 
 def get_session():
     session = local_session()
@@ -15,6 +16,11 @@ def get_session():
         yield session
     finally:
         session.close()
+
+def get_redis(request: Request) -> Redis:
+    if not request.app.state.redis:
+        raise HTTPException(status_code=400,detail="Redis is not initialized")
+    return request.app.state.redis
 
 def get_current_user(token: str =  Depends(oauth2_scheme),
                      session: Session = Depends(get_session)):

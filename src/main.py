@@ -9,8 +9,7 @@ from src.routers.user.users import router as users_router
 from src.routers.admin.admin import router as admin_router
 
 from src.core.lifespan import lifespan
-from src.core.logging import setup_logging
-from src.core.limiter import limiter
+from src.configurations.config import setup_logging,limiter
 
 setup_logging()
 
